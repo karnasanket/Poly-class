@@ -258,161 +258,195 @@ Poly Poly::operator-(const Poly& other) const
 
 Poly Poly::operator*(const Poly& other) const
 {
-    int tempSize = (this->size + other.size) -2; 
+    int tempSize = (this->size + other.size) -2; // computing the size for the answer Poly, which is the sum of two largers power multiplied value
+                                                 // -2 becuase the size != power. Power can be 7 for both and size would be 8 (because of +1 in constructor)
+                                                 // 7+7 =14, but the size 8+8 =16. which should be so, -2 to account for that
 
-    Poly returnVal(0, tempSize);
+    Poly returnVal(0, tempSize); // create the answer poly.
 
-    for(int i = 0; i < this->size; i++) 
+    for(int i = 0; i < this->size; i++) // outsize loops of one of the lhs Poly
     {
-        if(this->coeffPtr[i] != 0)
+        if(this->coeffPtr[i] != 0) // if the coefficient isnt 0
         {
-            for(int j = 0; j < other.size; j++)
+            for(int j = 0; j < other.size; j++) // nested loop of the rhs Poly
             {
-                returnVal.coeffPtr[i + j] += this->coeffPtr[i] * other.coeffPtr[j];
+                returnVal.coeffPtr[i + j] += this->coeffPtr[i] * other.coeffPtr[j]; //multiply Poly's by adding the power of lhs and rhs of the same index, and multiplying the coefficient
             }
         }
     }
 
-    return returnVal;
+    return returnVal; // return the answer
 }
+
+// ------------------------------------Mathematical operator +=-----------------------------------------------
+// Description: Adds two Poly's, then assigns it to the lhs Poly
+// ---------------------------------------------------------------------------------------------------
 
 Poly& Poly::operator+=(const Poly& other)
 {
-    *this = *this + other;
+    *this = *this + other; // A += B --> A = A + B
     return *this;
 }
+
+// ------------------------------------Mathematical operator -=-----------------------------------------------
+// Description: Subtracts two Poly's, then assigns it to the lhs Poly
+// ---------------------------------------------------------------------------------------------------
 
 Poly& Poly::operator-=(const Poly& other)
 {
-    *this = *this - other;
+    *this = *this - other; // A -= B --> A = A - B
     return *this;
 }
 
-Poly& Poly::operator*=(const Poly& other)
+// ------------------------------------Mathematical operator *=-----------------------------------------------
+// Description: Multiplies two Poly's, then assigns it to the lhs Poly
+// ---------------------------------------------------------------------------------------------------
+
+Poly& Poly::operator*=(const Poly& other) 
 {
-    *this = *this * other;
-    return *this;
+    *this = *this * other; // A *= B --> A = A * B
+    return *this; 
 }
+
+// ------------------------------------Mathematical operator ==-----------------------------------------------
+// Description: Checks if two Poly's are the same, returns true if they are
+// They dont have to be the same size, a Poly of size 9, can have Poly 5x^2, where the 8th Power is just 0
+// ---------------------------------------------------------------------------------------------------
 
 bool Poly::operator==(const Poly& other) const 
 {
-    if(this->size == other.size) 
+    if(this->size == other.size) // if lhs and rhs are the same size
     {
-        for(int i = 0; i < this->size; i++) 
+        for(int i = 0; i < this->size; i++)  // runs a loop of the size of the Poly's (they're the same)
         {
-            if(coeffPtr[i] != other.coeffPtr[i])
+            if(coeffPtr[i] != other.coeffPtr[i]) // checks every index to see if they're different
             {
-                return false;
+                return false; // if at anypoint they are, returns false
             }
         }
-        return true;
+        return true; // if it breaks out of the loop, all the value are the same, so true
     }
-    else 
+    else // theyre diff sizes
     {
-        if(this->size < other.size)
+        if(this->size < other.size) // if rhs is bigger 
         {
-            for(int i = 0; i < this->size; i++)
+            for(int i = 0; i < this->size; i++) // run a loop of rhs size
             {
-                if(coeffPtr[i] != other.coeffPtr[i])
+                if(coeffPtr[i] != other.coeffPtr[i]) // checks every index to see if they're different
                 {
-                    return false;
+                    return false;  // if at anypoint they are, returns false
                 }
             }
         
-            for (int j = this->size; j < other.size; j++)
+            for (int j = this->size; j < other.size; j++) // now checks for the remainder of the values to be 0
             {
-                if(other.coeffPtr != 0)
+                if(other.coeffPtr != 0) // if they are not all 0, they do not match
                 {
-                    return false;
+                    return false; // retuns false
                 }
             }
-        return true;
+        return true; // if it breaks out of the loop succesfully, retuns true
         }
 
-        else 
+        else // if lhs is bigger
         {
-            for(int i = 0; i < this->size; i++)
+            for(int i = 0; i < this->size; i++) // run a loop of lhs size
             {
-                if(coeffPtr[i] != other.coeffPtr[i])
+                if(coeffPtr[i] != other.coeffPtr[i]) // checks every index to see if they're different
                 {
-                    return false;
+                    return false; // if at anypoint they are, returns false
                 }
             }
         
-            for (int j = this->size; j < other.size; j++)
+            for (int j = this->size; j < other.size; j++) // now checks for the remainder of the values to be 0
             {
-                if(coeffPtr != 0)
-                {
-                    return false;
+                if(coeffPtr != 0) // if they are not all 0, they do not match
+                { 
+                    return false; // retuns false
                 }
             }
-        return true;
+        return true; // if it breaks out of the loop succesfully, retuns true
         }
     }
     
 }
 
+// ------------------------------------Mathematical operator ==-----------------------------------------------
+// Description: Checks if two Poly's are the different, returns true if they are, false if theyre are the same
+// ---------------------------------------------------------------------------------------------------
+
 bool Poly::operator!=(const Poly& other) const 
 {
-    return !(*this == other);
+    return !(*this == other); // if this == ohter, returns false, if not return true
 }
+
+// ------------------------------------istream operator>> overload-----------------------------------------------
+// Description: user inputs a set of values, 1st value is a first coefficient, and 2nd value is the power of taht coeff
+// so on and so forth until they put -1 for coeff and -1 for pow, where the input terminates
+// ---------------------------------------------------------------------------------------------------
 
 istream& operator>>(istream& in, Poly& other)
 {
-    int coeff;
-    int pow;
+    int coeff; // variables for coefficient
+    int pow; // and power
 
-    bool input = true;
+    bool input = true; 
 
-    while(input)
+    while(input) // while input is true
     {
-        in >> coeff >> pow;
+        in >> coeff >> pow; // first value entered is coeff and second is it's power
 
-        if((coeff == -1) && (pow == -1))
+        if((coeff == -1) && (pow == -1)) // if the values are -1 and -1, loop exits
         {
             break;
         }
-        other.setCoeff(coeff, pow);
+        other.setCoeff(coeff, pow); // sets the poly object that is being created with the user input
     }
 
-    return in;
+    return in; // end
 }
+
+// ------------------------------------ostream operator<< overload-----------------------------------------------
+// Description: Outputs the Poly array in a form of a Polynomial. If the coeff is 1, the ouput is just x^pow.
+// If the pow is also 1, then the output is just x. If the coeff isnt 0, then the poly gets displayes, otherwise
+// that specific poly is just 0
+// ---------------------------------------------------------------------------------------------------
 
 ostream& operator<<(ostream& out, Poly& other) 
 {
-    bool zero = true;
+    bool zero = true; // zero check
 
-    for(int i = other.size -1; i >=0; i--) 
+    for(int i = other.size -1; i >=0; i--) // goes backwards in the array because Poly is displayed from largerst to smallest
     {
-        if(other.coeffPtr[i] != 0) 
+        if(other.coeffPtr[i] != 0) // if the coeff isnt 0
         {
-            zero = false;
-            out << " ";
+            zero = false; // zero isnt true
+            out << " "; // first value is empty string for display cleanliness
 
-            if(other.coeffPtr[i] > 0) 
+            if(other.coeffPtr[i] > 0) // if the value is > 0, then puts a +, if not then the value already has a -
             {
                 out << "+";
             }
+ 
+            out << other.coeffPtr[i]; // out the actual coeff
 
-            out << other.coeffPtr[i];
-
-            if(i != 0 && i != 1) 
+            if(i != 0 && i != 1) // then if the power (represented by the index) isnt 0 or 1, 
             {
-                out << "x^" << i;
+                out << "x^" << i; // x^pow
             }
-            if(i == 1) 
+            if(i == 1) // if its 1 
             {
-                out <<"x";
+                out <<"x"; 
             }
         }   
     }
 
-    if(zero) 
+    if(zero) // if zero is true then the curr Poly value is 0
     {
         return out << "0";
     }
     else 
     {
-        return out;
+        return out; // EOF
     }
 }
