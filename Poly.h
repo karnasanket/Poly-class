@@ -62,4 +62,3 @@ class Poly {
 
 };
 
-#include "Poly.cpp"
